@@ -55,9 +55,9 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
     st.markdown(f"### {t('target_selection_title', lang)}")
     
     if kpi_candidates:
-        # Create options for selectbox
+        # Create options for selectbox - NEW FORMAT: "Label (Sheet) [Row N]"
         options = [
-            f"{candidate['label']} ({candidate['sheet']}!{candidate['address']})"
+            f"{candidate['label']} ({candidate['sheet']}) [Row {candidate['row']}]"
             for candidate in kpi_candidates
         ]
         
@@ -74,11 +74,11 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
             selected_candidate = kpi_candidates[selected_index]
             st.session_state['target_metric'] = selected_candidate['id']
             
-            # Show selection confirmation
+            # Show selection confirmation with representative cell info
             st.success(
                 t('target_selected', lang).format(
                     label=selected_candidate['label'],
-                    address=f"{selected_candidate['sheet']}!{selected_candidate['address']}"
+                    address=f"{selected_candidate['sheet']} Row {selected_candidate['row']} (Representative: {selected_candidate['representative_address']})"
                 )
             )
     else:

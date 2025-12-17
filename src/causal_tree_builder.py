@@ -255,10 +255,15 @@ class CausalTreeBuilder:
         """
         Get KPI candidates for target selection.
         
+        CRITICAL: Groups by (Sheet, Row, Label) to avoid showing every cell in a time series.
+        For series data (e.g., monthly revenue), shows ONE row instead of 12 individual cells.
+        
         Criteria:
         - Must contain "売上" or "Revenue" in label
         - Has formula (calculated metric)
         - Has dependencies (not a pure input)
+        - Groups by row (deduplicates series data)
+        - Selects representative cell per row
         - Limit to top 10
         
         Args:
@@ -266,9 +271,17 @@ class CausalTreeBuilder:
             factors: List of factors
             
         Returns:
-            List of candidate dictionaries with id, label, sheet, address
+            List of candidate dictionaries with:
+            - id: Representative cell ID (for analysis)
+            - label: Row label
+            - sheet: Sheet name
+            - row: Row number
+            - representative_address: Address of representative cell
         """
-        candidates = []
+        import re
+        
+        # Step 1: Collect all KPI cells
+        kpi_cells = []
         
         for cell_id, cell_info in model.cells.items():
             # Must have formula
@@ -289,13 +302,90 @@ class CausalTreeBuilder:
             if '売上' not in label and 'revenue' not in label_lower:
                 continue
             
-            # Add to candidates
-            candidates.append({
+            # Extract row number from address
+            match = re.match(r'([A-Z]+)(\d+)', cell_info.address)
+            if not match:
+                continue
+            
+            row_num = int(match.group(2))
+            
+            kpi_cells.append({
                 'id': cell_id,
                 'label': label,
                 'sheet': cell_info.sheet,
-                'address': cell_info.address
+                'row': row_num,
+                'address': cell_info.address,
+                'cell_info': cell_info
             })
         
-        # Limit to top 10
+        # Step 2: Group by (Sheet, Row, Label)
+        from collections import defaultdict
+        grouped = defaultdict(list)
+        
+        for cell in kpi_cells:
+            key = (cell['sheet'], cell['row'], cell['label'])
+            grouped[key].append(cell)
+        
+        # Step 3: Select representative cell for each row
+        candidates = []
+        
+        for (sheet, row, label), cells in grouped.items():
+            # Select representative cell
+            representative = self._select_representative_cell(cells, model)
+            
+            candidates.append({
+                'id': representative['id'],
+                'label': label,
+                'sheet': sheet,
+                'row': row,
+                'representative_address': representative['address'],
+                'cell_count': len(cells)  # For debugging
+            })
+        
+        # Step 4: Sort by row number and limit to top 10
+        candidates.sort(key=lambda x: (x['sheet'], x['row']))
         return candidates[:10]
+    
+    def _select_representative_cell(self, cells: List[dict], model: ModelAnalysis) -> dict:
+        """
+        Select representative cell from a row of series data.
+        
+        Priority:
+        1. Cell with SUM formula (合計列)
+        2. Rightmost cell with formula (likely last actual or first forecast)
+        3. First cell in the list
+        
+        Args:
+            cells: List of cell dictionaries from same row
+            model: ModelAnalysis object
+            
+        Returns:
+            Representative cell dictionary
+        """
+        import re
+        
+        # Priority 1: Look for SUM formula
+        for cell in cells:
+            formula = cell['cell_info'].formula
+            if formula and 'SUM' in formula.upper():
+                return cell
+        
+        # Priority 2: Rightmost cell (highest column letter)
+        # Extract column letters and find max
+        cells_with_col = []
+        for cell in cells:
+            match = re.match(r'([A-Z]+)(\d+)', cell['address'])
+            if match:
+                col_letter = match.group(1)
+                # Convert column letter to number for comparison
+                from openpyxl.utils import column_index_from_string
+                col_num = column_index_from_string(col_letter)
+                cells_with_col.append((col_num, cell))
+        
+        if cells_with_col:
+            # Return cell with highest column number
+            cells_with_col.sort(key=lambda x: x[0], reverse=True)
+            return cells_with_col[0][1]
+        
+        # Priority 3: First cell
+        return cells[0]
