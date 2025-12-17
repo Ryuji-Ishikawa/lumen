@@ -134,13 +134,13 @@
     - _Requirements: 7. Error Handling_
 
 - [ ] 7. Implement Basic Tree Display (Placeholder)
-  - [ ] 7.1 Create simple tree view
+  - [x] 7.1 Create simple tree view
     - Use `st.expander()` for each level (temporary, before AgGrid)
     - Display: Node label, formula (readable), value
     - Show only 1 level initially (target + direct precedents)
     - _Requirements: 4.2 Causal Tree Structure_
   
-  - [ ] 7.2 Add UNTRACEABLE node handling
+  - [x] 7.2 Add UNTRACEABLE node handling
     - Display warning icon for untraceable nodes
     - Show reason in tooltip or caption
     - _Requirements: 5.1 Broken Excel Behavior_

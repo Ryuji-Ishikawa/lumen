@@ -260,6 +260,19 @@ TEXTS = {
         'manual_target_selected': 'Selected: {address}',
         'invalid_cell_address': 'Invalid cell address or cell not found',
         
+        # Causal Tree Display
+        'causal_tree_title': 'Causal Tree',
+        'causal_tree_subtitle': 'Hierarchical breakdown showing how this metric is calculated',
+        'tree_build_error': 'Error building tree: {error}',
+        'cell_address': 'Cell Address',
+        'value': 'Value',
+        'formula': 'Formula',
+        'formula_readable': 'Readable Formula',
+        'untraceable': 'UNTRACEABLE',
+        'untraceable_reason': 'Reason',
+        'precedents': 'Precedents',
+        'precedents_count': 'Number of precedents',
+        
         # Risk Review System
         'review_checkbox': 'Review',
         'review_checkbox_help': 'Mark this risk as reviewed',
@@ -530,6 +543,19 @@ TEXTS = {
         'manual_selection_help': '形式: Sheet1!C10',
         'manual_target_selected': '選択: {address}',
         'invalid_cell_address': '無効なセルアドレスまたはセルが見つかりません',
+        
+        # Causal Tree Display
+        'causal_tree_title': '因果ツリー',
+        'causal_tree_subtitle': 'この指標がどのように計算されているかを階層的に表示',
+        'tree_build_error': 'ツリー構築エラー: {error}',
+        'cell_address': 'セルアドレス',
+        'value': '値',
+        'formula': '数式',
+        'formula_readable': '読みやすい数式',
+        'untraceable': '追跡不可',
+        'untraceable_reason': '理由',
+        'precedents': '参照元',
+        'precedents_count': '参照元の数',
         'coming_soon': '近日公開',
         'development_status': '開発状況',
         

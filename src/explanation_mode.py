@@ -81,6 +81,27 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
                     address=f"{selected_candidate['sheet']} Row {selected_candidate['row']} (Representative: {selected_candidate['representative_address']})"
                 )
             )
+            
+            st.markdown("---")
+            
+            # Build and display causal tree
+            st.markdown(f"### {t('causal_tree_title', lang)}")
+            st.caption(t('causal_tree_subtitle', lang))
+            
+            try:
+                # Build tree with depth=1 (target + direct precedents)
+                tree = builder.build_causal_tree(
+                    target_id=selected_candidate['id'],
+                    model=model,
+                    factors=factors,
+                    max_depth=1
+                )
+                
+                # Display tree using expanders
+                _render_tree_node(tree, model, lang, level=0)
+                
+            except Exception as e:
+                st.error(t('tree_build_error', lang).format(error=str(e)))
     else:
         # No KPI candidates found
         st.warning(t('no_kpi_candidates', lang))
@@ -178,3 +199,60 @@ def render_detail_panel(model: ModelAnalysis, selected_node_id: Optional[str], l
     """
     # TODO: Implement in Phase 3
     pass
+
+
+def _render_tree_node(node, model: ModelAnalysis, lang: str, level: int = 0):
+    """
+    Render a single tree node using st.expander.
+    
+    Args:
+        node: CausalNode to render
+        model: ModelAnalysis object
+        lang: Language code
+        level: Depth level (0 = root)
+    """
+    from src.explanation_models import CausalNode
+    
+    # Get cell info
+    cell_info = model.cells.get(node.id)
+    if not cell_info:
+        return
+    
+    # Build node label
+    indent = "  " * level
+    node_label = f"{indent}{node.label}"
+    
+    # Add UNTRACEABLE indicator if needed
+    if node.is_untraceable:
+        node_label += f" [{t('untraceable', lang)}]"
+    
+    # Create expander for this node
+    with st.expander(node_label, expanded=(level == 0)):
+        # Show cell address
+        st.markdown(f"**{t('cell_address', lang)}:** {node.sheet}!{node.address}")
+        
+        # Show value if available
+        if cell_info.value is not None:
+            st.markdown(f"**{t('value', lang)}:** {cell_info.value}")
+        
+        # Show formula (original)
+        if cell_info.formula:
+            st.markdown(f"**{t('formula', lang)}:** `{cell_info.formula}`")
+        
+        # Show readable formula if available
+        if node.formula_readable and node.formula_readable != cell_info.formula:
+            st.markdown(f"**{t('formula_readable', lang)}:** `{node.formula_readable}`")
+        
+        # Show UNTRACEABLE reason if applicable
+        if node.is_untraceable and node.untraceable_reason:
+            st.warning(f"{t('untraceable_reason', lang)}: {node.untraceable_reason}")
+        
+        # Show children count
+        if node.children:
+            st.info(f"{t('precedents_count', lang)}: {len(node.children)}")
+        
+        # Recursively render children
+        if node.children:
+            st.markdown(f"**{t('precedents', lang)}:**")
+            for child in node.children:
+                _render_tree_node(child, model, lang, level + 1)
