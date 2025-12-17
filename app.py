@@ -195,7 +195,7 @@ def main():
         if not (reference_file and target_file):
             st.markdown("---")
             mode = st.radio(
-                "📊 " + ("分析モード" if lang == 'ja' else "Analysis Mode"),
+                ("分析モード" if lang == 'ja' else "Analysis Mode"),
                 ["Risk Review", "Explanation Mode"],
                 horizontal=True,
                 key="app_mode",
