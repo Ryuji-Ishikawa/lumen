@@ -29,7 +29,7 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
         lang: Language code ('ja' or 'en')
     """
     # Header
-    st.markdown(f"## 🔍 {t('explanation_mode_title', lang)}")
+    st.markdown(f"## {t('explanation_mode_title', lang)}")
     st.caption(t('explanation_mode_subtitle', lang))
     
     st.markdown("---")
@@ -52,7 +52,7 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
     kpi_candidates = builder.get_kpi_candidates(model, factors)
     
     # Target Selection UI
-    st.markdown(f"### 🎯 {t('target_selection_title', lang)}")
+    st.markdown(f"### {t('target_selection_title', lang)}")
     
     if kpi_candidates:
         # Create options for selectbox
@@ -125,17 +125,17 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
     st.markdown(f"### {t('development_status', lang)}")
     
     progress_items = [
-        ("✅", "Data Models", "データモデル", "Complete"),
-        ("✅", "Factor Detection", "因数検出", "Complete"),
-        ("✅", "Period Inference", "期間推論", "Complete"),
-        ("✅", "Causal Tree Builder", "因果ツリー構築", "Complete"),
-        ("✅", "Target Selection", "ターゲット選択", "Complete"),
-        ("🚧", "Tree Display", "ツリー表示", "In Progress"),
+        ("Complete", "Data Models", "データモデル"),
+        ("Complete", "Factor Detection", "因数検出"),
+        ("Complete", "Period Inference", "期間推論"),
+        ("Complete", "Causal Tree Builder", "因果ツリー構築"),
+        ("Complete", "Target Selection", "ターゲット選択"),
+        ("In Progress", "Tree Display", "ツリー表示"),
     ]
     
-    for icon, name_en, name_ja, status in progress_items:
+    for status, name_en, name_ja in progress_items:
         name = name_ja if lang == 'ja' else name_en
-        st.markdown(f"{icon} **{name}** - {status}")
+        st.markdown(f"**{name}**: {status}")
 
 
 # Placeholder for future functions
