@@ -121,14 +121,14 @@
     - _Requirements: H Layout_
 
 - [ ] 6. Implement Target Selection UI
-  - [ ] 6.1 Add target selection dropdown
+  - [x] 6.1 Add target selection dropdown
     - Use `st.selectbox()` with KPI candidates
     - Filter: Must contain "売上" or "Revenue"
     - Limit: Top 10 candidates
     - Store selected target in `st.session_state['target_metric']`
     - _Requirements: C1 Target Selection_
   
-  - [ ] 6.2 Handle no candidates case
+  - [x] 6.2 Handle no candidates case
     - Show warning if no KPI candidates found
     - Provide fallback: Manual cell address input
     - _Requirements: 7. Error Handling_

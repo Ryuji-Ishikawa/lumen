@@ -248,6 +248,18 @@ TEXTS = {
         'coming_soon': 'Coming Soon',
         'development_status': 'Development Status',
         
+        # Target Selection
+        'target_selection_title': 'Select Target Metric',
+        'target_selection_label': 'Choose a KPI to analyze',
+        'target_selection_help': 'Select a key performance indicator (KPI) to build a causal tree',
+        'target_selected': 'Selected: {label} at {address}',
+        'no_kpi_candidates': 'No KPI candidates found (must contain "Revenue" in label)',
+        'manual_selection_title': 'Manual Selection',
+        'manual_selection_label': 'Enter cell address manually',
+        'manual_selection_help': 'Format: Sheet1!C10',
+        'manual_target_selected': 'Selected: {address}',
+        'invalid_cell_address': 'Invalid cell address or cell not found',
+        
         # Risk Review System
         'review_checkbox': 'Review',
         'review_checkbox_help': 'Mark this risk as reviewed',
@@ -506,6 +518,18 @@ TEXTS = {
         'explanation_mode_subtitle': '因果ツリー分析で「なぜこの数字なのか？」を理解',
         'explanation_mode_no_data': '分析可能なデータがありません',
         'model_overview': 'モデル概要',
+        
+        # Target Selection
+        'target_selection_title': 'ターゲット指標の選択',
+        'target_selection_label': '分析するKPIを選択',
+        'target_selection_help': '因果ツリーを構築する重要業績評価指標（KPI）を選択してください',
+        'target_selected': '選択: {label} ({address})',
+        'no_kpi_candidates': 'KPI候補が見つかりません（ラベルに「売上」を含む必要があります）',
+        'manual_selection_title': '手動選択',
+        'manual_selection_label': 'セルアドレスを手動入力',
+        'manual_selection_help': '形式: Sheet1!C10',
+        'manual_target_selected': '選択: {address}',
+        'invalid_cell_address': '無効なセルアドレスまたはセルが見つかりません',
         'coming_soon': '近日公開',
         'development_status': '開発状況',
         

@@ -39,10 +39,70 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
         st.warning(t('explanation_mode_no_data', lang))
         return
     
-    # Phase 2 MVP: Simple placeholder UI
-    # This will be replaced with full implementation in Phase 3
+    # Detect factors (needed for KPI candidates)
+    from src.factor_detector import FactorDetector
+    from src.causal_tree_builder import CausalTreeBuilder
     
-    st.info("🚧 " + ("Explanation Mode は開発中です" if lang == 'ja' else "Explanation Mode is under development"))
+    detector = FactorDetector()
+    factors = detector.detect_factors(model)
+    
+    builder = CausalTreeBuilder()
+    
+    # Get KPI candidates
+    kpi_candidates = builder.get_kpi_candidates(model, factors)
+    
+    # Target Selection UI
+    st.markdown(f"### 🎯 {t('target_selection_title', lang)}")
+    
+    if kpi_candidates:
+        # Create options for selectbox
+        options = [
+            f"{candidate['label']} ({candidate['sheet']}!{candidate['address']})"
+            for candidate in kpi_candidates
+        ]
+        
+        # Add index for mapping back to candidate
+        selected_index = st.selectbox(
+            t('target_selection_label', lang),
+            range(len(options)),
+            format_func=lambda i: options[i],
+            help=t('target_selection_help', lang)
+        )
+        
+        # Store selected target in session state
+        if selected_index is not None:
+            selected_candidate = kpi_candidates[selected_index]
+            st.session_state['target_metric'] = selected_candidate['id']
+            
+            # Show selection confirmation
+            st.success(
+                t('target_selected', lang).format(
+                    label=selected_candidate['label'],
+                    address=f"{selected_candidate['sheet']}!{selected_candidate['address']}"
+                )
+            )
+    else:
+        # No KPI candidates found
+        st.warning(t('no_kpi_candidates', lang))
+        
+        # Fallback: Manual cell address input
+        st.markdown(f"#### {t('manual_selection_title', lang)}")
+        
+        manual_input = st.text_input(
+            t('manual_selection_label', lang),
+            placeholder="Sheet1!C10",
+            help=t('manual_selection_help', lang)
+        )
+        
+        if manual_input:
+            # Validate format
+            if '!' in manual_input and manual_input in model.cells:
+                st.session_state['target_metric'] = manual_input
+                st.success(t('manual_target_selected', lang).format(address=manual_input))
+            else:
+                st.error(t('invalid_cell_address', lang))
+    
+    st.markdown("---")
     
     # Show basic model info
     st.markdown(f"### {t('model_overview', lang)}")
@@ -61,23 +121,6 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
     
     st.markdown("---")
     
-    # Placeholder for future features
-    st.markdown(f"### {t('coming_soon', lang)}")
-    
-    features = [
-        ("🌳", "Causal Tree", "因果ツリー", "Hierarchical breakdown of KPI calculations"),
-        ("📊", "Period Analysis", "期間分析", "Actual vs Forecast classification"),
-        ("📝", "Evidence Memos", "エビデンスメモ", "Attach explanations to factors"),
-        ("🎯", "Target Selection", "ターゲット選択", "Select KPI to analyze"),
-    ]
-    
-    for icon, name_en, name_ja, desc_en in features:
-        name = name_ja if lang == 'ja' else name_en
-        desc = desc_en  # Keep English for now
-        st.markdown(f"{icon} **{name}** - {desc}")
-    
-    st.markdown("---")
-    
     # Development status
     st.markdown(f"### {t('development_status', lang)}")
     
@@ -86,7 +129,8 @@ def render_explanation_mode(model: ModelAnalysis, lang: str):
         ("✅", "Factor Detection", "因数検出", "Complete"),
         ("✅", "Period Inference", "期間推論", "Complete"),
         ("✅", "Causal Tree Builder", "因果ツリー構築", "Complete"),
-        ("🚧", "UI Implementation", "UI実装", "In Progress"),
+        ("✅", "Target Selection", "ターゲット選択", "Complete"),
+        ("🚧", "Tree Display", "ツリー表示", "In Progress"),
     ]
     
     for icon, name_en, name_ja, status in progress_items:
